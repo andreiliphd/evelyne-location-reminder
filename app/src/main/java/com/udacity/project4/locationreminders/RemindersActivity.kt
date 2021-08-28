@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.udacity.project4.R
 import kotlinx.android.synthetic.main.activity_reminders.*
 
@@ -15,6 +16,7 @@ import kotlinx.android.synthetic.main.activity_reminders.*
  * The RemindersActivity that holds the reminders fragments
  */
 class RemindersActivity : AppCompatActivity() {
+    // See: https://developer.android.com/training/basics/intents/result
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
