@@ -1,6 +1,8 @@
 *.iml
 .gradle
 app/google-services.json
+app/release
+app/debug
 /local.properties
 /.idea/caches
 /.idea/libraries
