@@ -7,9 +7,11 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.content.res.Resources.NotFoundException
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ApiException
@@ -27,9 +29,14 @@ import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import kotlinx.android.synthetic.main.fragment_select_location.*
 import org.koin.android.ext.android.inject
+import com.google.android.gms.maps.model.MapStyleOptions
 
-class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
+
+
+
+class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -93,12 +100,60 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            val success = googleMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    context, R.raw.map_style
+                )
+            )
+            if (!success) {
+                Log.e("maps", "Style parsing failed.")
+            }
+        } catch (e: NotFoundException) {
+            Log.e("maps", "Can't find style. Error: ", e)
+        }
 
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
+        val sydney = LatLng(59.935252086183695, 30.325599254316298)
         mMap.addMarker(MarkerOptions()
             .position(sydney)
             .title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        mMap.setOnMarkerClickListener(this)
+        mMap.setOnMapClickListener {
+            Log.i("marker", it.toString())
+            mMap.addMarker(MarkerOptions()
+                .position(it)
+                .draggable(true)
+                .title("Set point of interest."))
+
+        }
     }
+
+    /** Called when the user clicks a marker.  */
+    override fun onMarkerClick(marker: Marker): Boolean {
+        Log.i("marker", marker.position.toString())
+
+        // Retrieve the data from the marker.
+        val clickCount = marker.tag as? Int
+
+        // Check if a click count was set, then display the click count.
+        clickCount?.let {
+            val newClickCount = it + 1
+            marker.tag = newClickCount
+            Toast.makeText(
+                context,
+                "${marker.title} has been clicked $newClickCount times.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        // Return false to indicate that we have not consumed the event and that we wish
+        // for the default behavior to occur (which is for the camera to move such that the
+        // marker is centered and for the marker's info window to open, if it has one).
+        return false
+    }
+
 }
