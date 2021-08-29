@@ -1,6 +1,8 @@
 package com.udacity.project4.authentication
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.AlarmClock.EXTRA_MESSAGE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.firebase.ui.auth.AuthUI
@@ -9,6 +11,7 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
+import com.udacity.project4.locationreminders.RemindersActivity
 
 /**
  * This class should be the starting point of the app, It asks the users to sign in / register, and redirects the
@@ -29,8 +32,8 @@ class AuthenticationActivity : AppCompatActivity() {
         .createSignInIntentBuilder()
         .setAvailableProviders(providers)
         .build()
-
     private lateinit var binding: ActivityAuthenticationBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(
@@ -54,6 +57,11 @@ class AuthenticationActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             // Successfully signed in
             val user = FirebaseAuth.getInstance().currentUser
+            val intent = Intent(this, RemindersActivity::class.java).apply {
+                putExtra(EXTRA_MESSAGE, user)
+            }
+            startActivity(intent)
+
             // ...
         } else {
             // Sign in failed. If response is null the user canceled the
