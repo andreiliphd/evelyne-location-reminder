@@ -5,8 +5,9 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 
+
 android {
-    compileSdkVersion rootProject.compileSdkVersion
+    compileSdkVersion 30
     buildToolsVersion "30.0.2"
 
     defaultConfig {
@@ -16,7 +17,11 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        manifestPlaceholders = [MAPS_API_KEY: "${properties.getProperty('MAPS_API_KEY')}"]
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -31,10 +36,10 @@ android {
         returnDefaultValues = true
     }
 
-    //dataBinding {
-    //    enabled = true
-    //    enabledForTests = true
-    //}
+    dataBinding {
+        enabled = true
+        enabledForTests = true
+    }
     buildFeatures {
         dataBinding true
     }
@@ -49,6 +54,9 @@ dependencies {
     // Declare the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
+
+    // Google Maps SDK
+    implementation 'com.google.android.gms:play-services-maps:17.0.1'
 
     // App dependencies
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
