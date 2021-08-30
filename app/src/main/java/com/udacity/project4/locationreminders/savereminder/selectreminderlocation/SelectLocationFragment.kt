@@ -166,13 +166,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             Log.e("maps", "Can't find style. Error: ", e)
         }
 
-//        mMap.setOnMarkerClickListener(this)
-//        mMap.setOnMapClickListener {
-//            Log.i("marker", it.toString())
-//            val marker = mMap.addMarker(MarkerOptions()
-//                .position(it)
-//                .draggable(true)
-//                .title("Set point of interest."))
+        mMap.setOnMapClickListener {
+            Log.i("marker", it.toString())
+            val marker = mMap.addMarker(
+                MarkerOptions()
+                    .position(it)
+                    .draggable(true)
+                    .title("POI")
+                    .snippet("Possible area for a geofence.")
+            )
+        }
 //            AlertDialog.Builder(requireContext())
 //                .setTitle("Add marker")
 //                .setMessage("Do you want to add marker to reminders?")
