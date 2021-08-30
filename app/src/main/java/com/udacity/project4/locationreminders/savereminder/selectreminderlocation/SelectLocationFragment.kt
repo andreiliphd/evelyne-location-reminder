@@ -11,7 +11,9 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.Resources.NotFoundException
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
@@ -47,7 +49,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragmentDirections
 
 
-class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -78,6 +80,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
+        if (savedInstanceState != null) {
+            lastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION)
+            cameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION)
+        }
+
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_select_location, container, false)
 
@@ -104,6 +111,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
 
         onLocationSelected()
         return binding.root
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        map?.let { map ->
+            outState.putParcelable(KEY_CAMERA_POSITION, mMap.cameraPosition)
+            outState.putParcelable(KEY_LOCATION, lastKnownLocation)
+        }
+        super.onSaveInstanceState(outState)
     }
 
     private fun onLocationSelected() {
@@ -151,12 +166,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
             Log.e("maps", "Can't find style. Error: ", e)
         }
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(59.935252086183695, 30.325599254316298)
-        mMap.addMarker(MarkerOptions()
-            .position(sydney)
-            .title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
 //        mMap.setOnMarkerClickListener(this)
 //        mMap.setOnMapClickListener {
 //            Log.i("marker", it.toString())
@@ -180,7 +189,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
 //                .show()
 //        }
 
-        this.mMap?.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+        mMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             // Return null here, so that getInfoContents() is called next.
             override fun getInfoWindow(arg0: Marker): View? {
                 return null
@@ -190,7 +199,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
                 // Inflate the layouts for the info window, title and snippet.
                 val infoWindow = layoutInflater.inflate(
                     R.layout.custom_info_contents,
-                    requireView().findViewById(R.id.map),
+                    requireView().findViewById<FrameLayout>(R.id.map),
                     false
                 )
                 val title = infoWindow.findViewById<TextView>(R.id.titleInfo)
@@ -209,6 +218,64 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation()
+    }
+
+    /**
+     * Prompts the user for permission to use the device location.
+     */
+    private fun getLocationPermission() {
+        /*
+ * Request location permission, so that we can get the location of the
+ * device. The result of the permission request is handled by a callback,
+ * onRequestPermissionsResult.
+ */
+        if (ContextCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED) {
+            locationPermissionGranted = true
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
+        }
+    }
+
+        /**
+     * Handles the result of the request for location permissions.
+     */
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>,
+                                            grantResults: IntArray) {
+            locationPermissionGranted = false
+            when (requestCode) {
+                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION -> {
+
+                    // If request is cancelled, the result arrays are empty.
+                    if (grantResults.isNotEmpty() &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        locationPermissionGranted = true
+                    }
+                }
+            }
+            updateLocationUI()
+    }
+
+    private fun updateLocationUI() {
+        if (mMap == null) {
+            return
+        }
+        try {
+            if (locationPermissionGranted) {
+                mMap?.isMyLocationEnabled = true
+                mMap?.uiSettings?.isMyLocationButtonEnabled = true
+            } else {
+                mMap?.isMyLocationEnabled = false
+                mMap?.uiSettings?.isMyLocationButtonEnabled = false
+                lastKnownLocation = null
+                getLocationPermission()
+            }
+        } catch (e: SecurityException) {
+            Log.e("Exception: %s", e.message, e)
+        }
     }
 
     private fun getDeviceLocation() {
@@ -242,100 +309,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
         }
     }
 
-    /**
-     * Prompts the user for permission to use the device location.
-     */
-    private fun getLocationPermission() {
-        val shouldProvideRationale = ActivityCompat.shouldShowRequestPermissionRationale(
-            requireActivity(),
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        if (shouldProvideRationale) {
-            Log.i(
-                "WoosmapGeofencing",
-                "Displaying permission rationale to provide additional context."
-            )
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ),
-                REQUEST_PERMISSIONS_REQUEST_CODE
-            )
-        } else {
-            Log.i("WoosmapGeofencing", "Requesting permission")
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ),
-                REQUEST_PERMISSIONS_REQUEST_CODE
-            )
-        }
-
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
-//        if (ContextCompat.checkSelfPermission(requireContext(),
-//                Manifest.permission.ACCESS_FINE_LOCATION)
-//            == PackageManager.PERMISSION_GRANTED) {
-//            locationPermissionGranted = true
-//        } else {
-//            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-//                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
-//        }
-    }
-
-    /**
-     * Handles the result of the request for location permissions.
-     */
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>,
-                                            grantResults: IntArray) {
-        locationPermissionGranted = false
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
-            if (grantResults.size <= 0) {
-                // If user interaction was interrupted, the permission request is cancelled and you
-                // receive empty arrays.
-                Log.i("WoosmapGeofencing", "User interaction was cancelled.");
-            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i("WoosmapGeofencing", "Permission granted, updates requested, starting location updates");
-                locationPermissionGranted = true
-            } else {
-                // Permission denied.
-                locationPermissionGranted = false
-            }
-        }
-
-
-//            when (requestCode) {
-//            PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION -> {
-//
-//                // If request is cancelled, the result arrays are empty.
-//                if (grantResults.isNotEmpty() &&
-//                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    locationPermissionGranted = true
-//                }
-//            }
-        updateLocationUI()
-    }
 
     /**
      * Prompts the user to select the current place from a list of likely places, and shows the
@@ -346,6 +319,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
         if (mMap == null) {
             return
         }
+        Log.i("permission-location", locationPermissionGranted.toString())
         if (locationPermissionGranted) {
             // Use fields to define the data types to return.
             val placeFields = listOf(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
@@ -443,27 +417,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
     /**
      * Updates the map's UI settings based on whether the user has granted location permission.
      */
-    private fun updateLocationUI() {
-        if (mMap == null) {
-            return
-        }
-        try {
-            if (locationPermissionGranted) {
-                mMap?.isMyLocationEnabled = true
-                mMap?.uiSettings?.isMyLocationButtonEnabled = true
-            } else {
-                mMap?.isMyLocationEnabled = false
-                mMap?.uiSettings?.isMyLocationButtonEnabled = false
-                lastKnownLocation = null
-                getLocationPermission()
-            }
-        } catch (e: SecurityException) {
-            Log.e("Exception: %s", e.message, e)
-        }
-    }
 
     companion object {
-        private val TAG = "map"
+        private val TAG = SelectLocationFragment::class.java.simpleName
         private const val DEFAULT_ZOOM = 15
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
 
@@ -474,29 +430,4 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
         // Used for selecting the current place.
         private const val M_MAX_ENTRIES = 5
     }
-
-    /** Called when the user clicks a marker.  */
-    override fun onMarkerClick(marker: Marker): Boolean {
-        Log.i("marker", marker.position.toString())
-
-        // Retrieve the data from the marker.
-        val clickCount = marker.tag as? Int
-
-        // Check if a click count was set, then display the click count.
-        clickCount?.let {
-            val newClickCount = it + 1
-            marker.tag = newClickCount
-            Toast.makeText(
-                context,
-                "${marker.title} has been clicked $newClickCount times.",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        // Return false to indicate that we have not consumed the event and that we wish
-        // for the default behavior to occur (which is for the camera to move such that the
-        // marker is centered and for the marker's info window to open, if it has one).
-        return false
-    }
-
 }
