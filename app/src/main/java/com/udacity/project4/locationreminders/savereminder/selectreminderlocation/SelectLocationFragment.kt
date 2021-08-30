@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -12,8 +13,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.findNavController
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -32,8 +35,7 @@ import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import kotlinx.android.synthetic.main.fragment_select_location.*
 import org.koin.android.ext.android.inject
 import com.google.android.gms.maps.model.MapStyleOptions
-
-
+import com.udacity.project4.locationreminders.savereminder.SaveReminderFragmentDirections
 
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -124,11 +126,24 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
         mMap.setOnMarkerClickListener(this)
         mMap.setOnMapClickListener {
             Log.i("marker", it.toString())
-            mMap.addMarker(MarkerOptions()
+            val marker = mMap.addMarker(MarkerOptions()
                 .position(it)
                 .draggable(true)
                 .title("Set point of interest."))
-
+            AlertDialog.Builder(requireContext())
+                .setTitle("Add marker")
+                .setMessage("Do you want to add marker to reminders?")
+                .setPositiveButton("Yes") { _, _ ->
+                    val action =
+                        SelectLocationFragmentDirections
+                            .actionSelectLocationFragmentToSaveReminderFragment(it)
+                    view?.findNavController()?.navigate(R.id.action_selectLocationFragment_to_saveReminderFragment)
+                    Log.i("marker", "yes")
+                }
+                .setNegativeButton("No") { _, _ ->
+                    Log.i("marker", "no")
+                }
+                .show()
         }
     }
 
