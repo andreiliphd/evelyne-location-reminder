@@ -12,6 +12,8 @@ import android.content.res.Resources.NotFoundException
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -35,6 +37,8 @@ import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import kotlinx.android.synthetic.main.fragment_select_location.*
 import org.koin.android.ext.android.inject
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragmentDirections
 
 
@@ -44,6 +48,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var mMap: GoogleMap
+
+    // The entry point to the Places API.
+    private lateinit var placesClient: PlacesClient
+
+    // The entry point to the Fused Location Provider.
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -56,6 +66,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
+        // Construct a PlacesClient
+        Places.initialize(requireContext(), savedInstanceState?.getString("com.google.android.geo.API_KEY")!!)
+        placesClient = Places.createClient(requireContext())
+
+        // Construct a FusedLocationProviderClient.
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
 //        TODO: add the map setup implementation
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -64,11 +80,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
 //        TODO: zoom to the user location after taking his permission
 //        TODO: add style to the map
 //        TODO: put a marker to location that the user selected
-
-
 //        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
 
+        onLocationSelected()
         return binding.root
     }
 
@@ -116,6 +130,35 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
         } catch (e: NotFoundException) {
             Log.e("maps", "Can't find style. Error: ", e)
         }
+        this.mMap?.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+            // Return null here, so that getInfoContents() is called next.
+            override fun getInfoWindow(arg0: Marker): View? {
+                return null
+            }
+
+            override fun getInfoContents(marker: Marker): View {
+                // Inflate the layouts for the info window, title and snippet.
+                val infoWindow = layoutInflater.inflate(
+                    R.layout.custom_info_contents,
+                    childFragmentManager.findFragmentById(R.id.map) as ViewGroup,
+                    false
+                )
+                val title = infoWindow.findViewById<TextView>(R.id.titleInfo)
+                title.text = marker.title
+                val snippet = infoWindow.findViewById<TextView>(R.id.snippet)
+                snippet.text = marker.snippet
+                return infoWindow
+            }
+        })
+
+//        // Prompt the user for permission.
+//        getLocationPermission()
+//
+//        // Turn on the My Location layer and the related control on the map.
+//        updateLocationUI()
+//
+//        // Get the current location of the device and set the position of the map.
+//        getDeviceLocation()
 
         // Add a marker in Sydney and move the camera
         val sydney = LatLng(59.935252086183695, 30.325599254316298)
@@ -136,8 +179,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback, GoogleMap.OnM
                 .setPositiveButton("Yes") { _, _ ->
                     val action =
                         SelectLocationFragmentDirections
-                            .actionSelectLocationFragmentToSaveReminderFragment(it)
-                    view?.findNavController()?.navigate(R.id.action_selectLocationFragment_to_saveReminderFragment)
+                            .actionSelectLocationFragmentToSaveReminderFragment(marker.position)
+                    view?.findNavController()?.navigate(action)
                     Log.i("marker", "yes")
                 }
                 .setNegativeButton("No") { _, _ ->
