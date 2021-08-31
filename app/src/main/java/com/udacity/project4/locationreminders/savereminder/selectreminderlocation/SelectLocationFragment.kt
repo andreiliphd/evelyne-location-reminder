@@ -78,29 +78,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         } else {
             Log.i("bundle", "null value for bundle.")
         }
-
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_select_location, container, false)
-
         binding.viewModel = _viewModel
         binding.lifecycleOwner = this
-
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
-
-        // Construct a FusedLocationProviderClient.
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
-//        TODO: add the map setup implementation
+        //        TODO: add the map setup implementation
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-//        TODO: zoom to the user location after taking his permission
-//        TODO: add style to the map
-//        TODO: put a marker to location that the user selected
-//        TODO: call this function after the user confirms on the selected location
-
-        onLocationSelected()
         return binding.root
     }
 
@@ -112,10 +100,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         super.onSaveInstanceState(outState)
     }
 
-    private fun onLocationSelected() {
+    private fun onLocationSelected(marker: Marker) {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
+        val action =
+            SelectLocationFragmentDirections
+                .actionSelectLocationFragmentToSaveReminderFragment(marker.position)
+        view?.findNavController()?.navigate(action)
     }
 
 
@@ -142,6 +134,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        //        TODO: add style to the map
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
@@ -156,7 +149,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         } catch (e: NotFoundException) {
             Log.e("maps", "Can't find style. Error: ", e)
         }
-
+        //        TODO: put a marker to location that the user selected
         mMap.setOnMapClickListener {
             Log.i("marker", it.toString())
             val marker = mMap.addMarker(
@@ -166,6 +159,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     .title("POI")
                     .snippet("Possible area for a geofence.")
             )
+            AlertDialog.Builder(requireContext())
+                .setTitle("Add marker")
+                .setMessage("Do you want to add marker to reminders?")
+                .setPositiveButton("Yes") { _, _ ->
+                    //        TODO: call this function after the user confirms on the selected location
+                    onLocationSelected(marker)
+                }
+                .setNegativeButton("No") { _, _ ->
+                    Log.i("marker", "no")
+                }
+                .show()
         }
 
         mMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
@@ -218,9 +222,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-        /**
-     * Handles the result of the request for location permissions.
-     */
+
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>,
                                             grantResults: IntArray) {
@@ -258,10 +260,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun getDeviceLocation() {
-        /*
-         * Get the best and most recent location of the device, which may be null in rare
-         * cases when a location is not available.
-         */
+        //        TODO: zoom to the user location after taking his permission
         try {
             if (locationPermissionGranted) {
                 val locationResult = fusedLocationProviderClient.lastLocation
@@ -306,8 +305,5 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         // Keys for storing activity state.
         private const val KEY_CAMERA_POSITION = "camera_position"
         private const val KEY_LOCATION = "location"
-
-        // Used for selecting the current place.
-        private const val M_MAX_ENTRIES = 5
     }
 }
