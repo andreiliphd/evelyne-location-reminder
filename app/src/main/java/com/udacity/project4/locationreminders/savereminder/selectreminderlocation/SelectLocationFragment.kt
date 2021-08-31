@@ -14,6 +14,7 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.text.InputType
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
@@ -47,6 +48,10 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragmentDirections
+import android.widget.EditText
+
+
+
 
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
@@ -100,13 +105,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         super.onSaveInstanceState(outState)
     }
 
-    private fun onLocationSelected(marker: Marker) {
+    private fun onLocationSelected(marker: Marker, input: String) {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
         val action =
             SelectLocationFragmentDirections
-                .actionSelectLocationFragmentToSaveReminderFragment(marker.position)
+                .actionSelectLocationFragmentToSaveReminderFragment(marker.position, input)
         view?.findNavController()?.navigate(action)
     }
 
@@ -118,15 +123,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         // TODO: Change the map type based on the user's selection.
         R.id.normal_map -> {
+            mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
             true
         }
         R.id.hybrid_map -> {
+            mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
             true
         }
         R.id.satellite_map -> {
+            mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
             true
         }
         R.id.terrain_map -> {
+            mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -159,12 +168,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     .title("POI")
                     .snippet("Possible area for a geofence.")
             )
+            val input = EditText(requireContext())
+            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             AlertDialog.Builder(requireContext())
                 .setTitle("Add marker")
                 .setMessage("Do you want to add marker to reminders?")
+                .setView(input)
                 .setPositiveButton("Yes") { _, _ ->
                     //        TODO: call this function after the user confirms on the selected location
-                    onLocationSelected(marker)
+                    onLocationSelected(marker, input.text.toString())
                 }
                 .setNegativeButton("No") { _, _ ->
                     Log.i("marker", "no")

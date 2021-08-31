@@ -61,7 +61,7 @@ class ReminderListFragment : BaseFragment() {
         //use the navigationCommand live data to navigate between the fragments
         _viewModel.navigationCommand.postValue(
             NavigationCommand.To(
-                ReminderListFragmentDirections.toSaveReminder(LatLng(0.0, 0.0))
+                ReminderListFragmentDirections.toSaveReminder(LatLng(0.0, 0.0), "")
             )
         )
     }

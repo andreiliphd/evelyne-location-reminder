@@ -30,6 +30,9 @@
         <argument
             android:name="coordinates"
             app:argType="com.google.android.gms.maps.model.LatLng" />
+        <argument
+            android:name="input"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/selectLocationFragment"
