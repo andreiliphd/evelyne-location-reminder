@@ -49,9 +49,7 @@ import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragmentDirections
 import android.widget.EditText
-
-
-
+import com.udacity.project4.locationreminders.RemindersActivity
 
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
@@ -67,7 +65,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     // A default location (Sydney, Australia) and default zoom to use when location permission is
     // not granted.
     private val defaultLocation = LatLng(-33.8523341, 151.2106085)
-    private var locationPermissionGranted = false
 
     // The geographical location where the device is currently located. That is, the last-known
     // location retrieved by the Fused Location Provider.
@@ -169,7 +166,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     .snippet("Possible area for a geofence.")
             )
             val input = EditText(requireContext())
-            input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            input.inputType = InputType.TYPE_CLASS_TEXT
             AlertDialog.Builder(requireContext())
                 .setTitle("Add marker")
                 .setMessage("Do you want to add marker to reminders?")
@@ -205,8 +202,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
         })
 
-        // Prompt the user for permission.
-        getLocationPermission()
+//        // Prompt the user for permission.
+//        getLocationPermission()
 
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI()
@@ -215,56 +212,55 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         getDeviceLocation()
     }
 
-    /**
-     * Prompts the user for permission to use the device location.
-     */
-    private fun getLocationPermission() {
-        /*
- * Request location permission, so that we can get the location of the
- * device. The result of the permission request is handled by a callback,
- * onRequestPermissionsResult.
- */
-        if (ContextCompat.checkSelfPermission(requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED) {
-            locationPermissionGranted = true
-        } else {
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
-        }
-    }
-
-
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>,
-                                            grantResults: IntArray) {
-            locationPermissionGranted = false
-            when (requestCode) {
-                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION -> {
-
-                    // If request is cancelled, the result arrays are empty.
-                    if (grantResults.isNotEmpty() &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        locationPermissionGranted = true
-                    }
-                }
-            }
-            updateLocationUI()
-    }
+//    /**
+//     * Prompts the user for permission to use the device location.
+//     */
+//    private fun getLocationPermission() {
+//        /*
+// * Request location permission, so that we can get the location of the
+// * device. The result of the permission request is handled by a callback,
+// * onRequestPermissionsResult.
+// */
+//        if (ContextCompat.checkSelfPermission(requireContext(),
+//                Manifest.permission.ACCESS_FINE_LOCATION)
+//            == PackageManager.PERMISSION_GRANTED) {
+//            RemindersActivity.locationPermissionGranted = true
+//        } else {
+//            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+//                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
+//        }
+//    }
+//
+//
+//    override fun onRequestPermissionsResult(requestCode: Int,
+//                                            permissions: Array<String>,
+//                                            grantResults: IntArray) {
+//            RemindersActivity.locationPermissionGranted = false
+//            when (requestCode) {
+//                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION -> {
+//
+//                    // If request is cancelled, the result arrays are empty.
+//                    if (grantResults.isNotEmpty() &&
+//                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                        RemindersActivity.RemindersActivity.locationPermissionGranted = true
+//                    }
+//                }
+//            }
+//            updateLocationUI()
+//    }
 
     private fun updateLocationUI() {
         if (mMap == null) {
             return
         }
         try {
-            if (locationPermissionGranted) {
+            if (RemindersActivity.locationPermissionGranted) {
                 mMap?.isMyLocationEnabled = true
                 mMap?.uiSettings?.isMyLocationButtonEnabled = true
             } else {
                 mMap?.isMyLocationEnabled = false
                 mMap?.uiSettings?.isMyLocationButtonEnabled = false
                 lastKnownLocation = null
-                getLocationPermission()
             }
         } catch (e: SecurityException) {
             Log.e("Exception: %s", e.message, e)
@@ -274,7 +270,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private fun getDeviceLocation() {
         //        TODO: zoom to the user location after taking his permission
         try {
-            if (locationPermissionGranted) {
+            if (RemindersActivity.locationPermissionGranted) {
                 val locationResult = fusedLocationProviderClient.lastLocation
                 locationResult.addOnCompleteListener(requireActivity()) { task ->
                     if (task.isSuccessful) {

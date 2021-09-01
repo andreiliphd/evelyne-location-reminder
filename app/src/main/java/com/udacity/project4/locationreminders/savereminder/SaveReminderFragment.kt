@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders.savereminder
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.navArgs
@@ -36,7 +38,7 @@ class SaveReminderFragment : BaseFragment() {
     private lateinit var geofencingClient: GeofencingClient
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
-        intent.action = "ACTION_GEOFENCE_EVENT"
+//        intent.action = "ACTION_GEOFENCE_EVENT"
         PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
@@ -101,12 +103,37 @@ class SaveReminderFragment : BaseFragment() {
             .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             .addGeofence(geofence)
             .build()
-        if (ContextCompat.checkSelfPermission(requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED) {
+        if (locationPermissionsApproved(requireContext())) {
                 Log.i("permissions", "Permission granted. Using Geofence.")
-                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)
+            geofencingClient?.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+                addOnSuccessListener {
+                    // Geofences added
+                    Log.i("geofence", "Geofence intent sent.")
+                }
+                addOnFailureListener {
+                    // Failed to add geofences
+                    Log.i("geofence", "Geofence intent sending failed " + it + ".")
+                }
             }
+            }
+    }
+
+    fun locationPermissionsApproved(context: Context): Boolean {
+        val foregroundLocationPermissionApproved = (
+                PackageManager.PERMISSION_GRANTED ==
+                        ActivityCompat.checkSelfPermission(context,
+                            Manifest.permission.ACCESS_FINE_LOCATION))
+        val backgroundLocationPermissionApproved =
+            if (android.os.Build.VERSION.SDK_INT >=
+                android.os.Build.VERSION_CODES.Q) {
+                PackageManager.PERMISSION_GRANTED ==
+                        ActivityCompat.checkSelfPermission(
+                            context, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        )
+            } else {
+                true
+            }
+        return foregroundLocationPermissionApproved && backgroundLocationPermissionApproved
     }
 
     override fun onDestroy() {
