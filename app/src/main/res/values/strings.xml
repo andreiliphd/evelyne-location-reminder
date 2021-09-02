@@ -42,4 +42,5 @@
     <string name="error_adding_geofence">Error Happened, Can\'t Add Geofence</string>
     <string name="textTitle">Title</string>
     <string name="textSnippet">Snippet</string>
+    <string name="textReminderDetails">Reminder Details</string>
 </resources>

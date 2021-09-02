@@ -19,15 +19,51 @@
         <!--TODO: add the design of the reminder details-->
 
         <TextView
+            android:id="@+id/reminderDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Reminder Details"
+            android:text="@string/textReminderDetails"
             android:textSize="@dimen/text_size_large"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/titleDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@{reminderDataItem.title}" />
+
+        <TextView
+            android:id="@+id/descriptionDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@{reminderDataItem.description}" />
+
+        <TextView
+            android:id="@+id/locationDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@{reminderDataItem.location}" />
+
+        <TextView
+            android:id="@+id/latitudeDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@{reminderDataItem.latitude.toString()}" />
+
+        <TextView
+            android:id="@+id/longtitudeDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@{reminderDataItem.longitude.toString()}" />
 
     </LinearLayout>
 </layout>
