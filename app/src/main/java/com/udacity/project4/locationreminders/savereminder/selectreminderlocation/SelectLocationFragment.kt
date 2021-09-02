@@ -14,6 +14,7 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.text.Editable
 import android.text.InputType
 import android.util.Log
 import android.view.*
@@ -102,13 +103,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         super.onSaveInstanceState(outState)
     }
 
-    private fun onLocationSelected(marker: Marker, input: String) {
+    private fun onLocationSelected(latlng: LatLng, input: String) {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
         val action =
             SelectLocationFragmentDirections
-                .actionSelectLocationFragmentToSaveReminderFragment(marker.position, input)
+                .actionSelectLocationFragmentToSaveReminderFragment(latlng, input)
         view?.findNavController()?.navigate(action)
     }
 
@@ -156,8 +157,25 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             Log.e("maps", "Can't find style. Error: ", e)
         }
         //        TODO: put a marker to location that the user selected
-        mMap.setOnMapClickListener {
-            Log.i("marker", it.toString())
+        mMap.setOnPoiClickListener {
+            val input = EditText(requireContext())
+            input.inputType = InputType.TYPE_CLASS_TEXT
+            input.text = Editable.Factory.getInstance().newEditable(it.name)
+            AlertDialog.Builder(requireContext())
+                .setTitle("Add marker")
+                .setMessage("Do you want to add marker to reminders?")
+                .setView(input)
+                .setPositiveButton("Yes") { _, _ ->
+                    //        TODO: call this function after the user confirms on the selected location
+                    onLocationSelected(it.latLng, input.text.toString())
+                }
+                .setNegativeButton("No") { _, _ ->
+                    Log.i("marker", "no")
+                }
+                .show()
+        }
+
+        mMap.setOnMapClickListener() {
             val marker = mMap.addMarker(
                 MarkerOptions()
                     .position(it)
@@ -173,13 +191,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 .setView(input)
                 .setPositiveButton("Yes") { _, _ ->
                     //        TODO: call this function after the user confirms on the selected location
-                    onLocationSelected(marker, input.text.toString())
+                    onLocationSelected(it, input.text.toString())
                 }
                 .setNegativeButton("No") { _, _ ->
                     Log.i("marker", "no")
                 }
                 .show()
         }
+
 
         mMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
             // Return null here, so that getInfoContents() is called next.
