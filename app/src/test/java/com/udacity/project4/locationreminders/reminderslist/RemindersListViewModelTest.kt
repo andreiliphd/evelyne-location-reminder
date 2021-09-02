@@ -1,5 +1,6 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.os.Build
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -16,8 +17,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Build.VERSION_CODES.Q])
 @ExperimentalCoroutinesApi
 class RemindersListViewModelTest {
 
@@ -55,5 +59,29 @@ class RemindersListViewModelTest {
 
         // Then
         assertThat(remindersViewModel.showLoading.value, `is`(false))
+    }
+
+    @Test
+    fun getFakeDataSourceInRemindersViewModel_checkShowNoDataValue_returnsFalse() = runBlockingTest {
+        // Given
+        fakeReminderDataSource.saveReminder(ReminderDTO(
+            "title",
+            "description",
+            "location",
+            40.00,
+            50.00
+        ))
+
+        // When
+        remindersViewModel.loadReminders()
+
+        // Then
+        assertThat(remindersViewModel.showNoData.value, `is`(false))
+    }
+
+    @Test
+    fun getEmptyRemindersViewModel_checkShowNoDataValue_returnsTrue() {
+        remindersViewModel.loadReminders()
+        assertThat(remindersViewModel.showNoData.value, `is`(true))
     }
 }
