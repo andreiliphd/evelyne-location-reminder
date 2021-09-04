@@ -53,8 +53,8 @@ class RemindersLocalRepositoryTest {
                 "title",
                 "description",
                 "location",
-                10.00,
-                20.00
+                10.23,
+                17.25
         )
 
         //When
@@ -85,8 +85,8 @@ class RemindersLocalRepositoryTest {
                 "title_2",
                 "description_2",
                 "location_2",
-                20.01,
-                20.02
+                50.15,
+                45.21
         )
         remindersLocalRepository.saveReminder(reminder1)
         remindersLocalRepository.saveReminder(reminder2)
@@ -106,15 +106,15 @@ class RemindersLocalRepositoryTest {
                 "title_1",
                 "description_1",
                 "location_1",
-                10.01,
-                10.02
+                52.21,
+                18.25
         )
         val reminder2 = ReminderDTO(
                 "title_2",
                 "description_2",
                 "location_2",
-                20.01,
-                20.02
+                15.21,
+                19.56
         )
         remindersLocalRepository.saveReminder(reminder1)
         remindersLocalRepository.saveReminder(reminder2)

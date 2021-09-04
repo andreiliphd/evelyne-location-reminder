@@ -121,8 +121,8 @@ class RemindersActivityTest :
                 "Title",
                 "Description",
                 "Location",
-                52.10460,
-                4.32332
+                89.23,
+                8.45
         )
 
         runBlocking {
@@ -131,7 +131,6 @@ class RemindersActivityTest :
 
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(scenario)
-
         onView(withText(reminder.title)).check(matches(isDisplayed()))
         onView(withText(reminder.description)).check(matches(isDisplayed()))
         onView(withText(reminder.location)).check(matches(isDisplayed()))
@@ -150,19 +149,19 @@ class RemindersActivityTest :
         onView(withId(R.id.alertDialogInput))
         .inRoot(isDialog()) // <---
             .check(matches(isDisplayed()))
-            .perform(ViewActions.typeText("Mom's Home."))
+            .perform(ViewActions.typeText("Saint Petersburg Restaurant Location"))
         onView(withText("Yes"))
             .check(matches(isDisplayed()))
             .perform(click());
 
-        onView(withId(R.id.reminderTitle)).perform(ViewActions.typeText("Mom's Home"))
-        onView(withId(R.id.reminderDescription)).perform(ViewActions.typeText("Say Hello"))
+        onView(withId(R.id.reminderTitle)).perform(ViewActions.typeText("Saint Petersburg Restaurant"))
+        onView(withId(R.id.reminderDescription)).perform(ViewActions.typeText("Favorite place of Peter the First."))
 
         Espresso.closeSoftKeyboard()
 
         onView(withId(R.id.saveReminder)).perform(click())
         Espresso.pressBack()
-        onView(withText("Mom's Home")).check(matches(isDisplayed()))
-        onView(withText("Say Hello")).check(matches(isDisplayed()))
+        onView(withText("Saint Petersburg Restaurant")).check(matches(isDisplayed()))
+        onView(withText("Favorite place of Peter the First.")).check(matches(isDisplayed()))
     }
 }

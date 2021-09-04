@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.AlarmClock
 import android.view.*
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import com.firebase.ui.auth.AuthUI

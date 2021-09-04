@@ -93,8 +93,8 @@ class ReminderListFragmentTest : AutoCloseKoinTest(){
 
     @Test
     fun checkRemindersDisplayed() {
-        val reminder1 = ReminderDTO("title1", "description1", "location1", 10.01, 3.02)
-        val reminder2 = ReminderDTO("title2", "description2", "location2", 20.01, 4.02)
+        val reminder1 = ReminderDTO("title1", "description1", "location1", 40.52, 20.26)
+        val reminder2 = ReminderDTO("title2", "description2", "location2", 65.44, 5.12)
         runBlocking {
             reminderDataSource.saveReminder(reminder1)
             reminderDataSource.saveReminder(reminder2)
