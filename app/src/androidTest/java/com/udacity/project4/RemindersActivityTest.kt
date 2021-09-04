@@ -147,10 +147,10 @@ class RemindersActivityTest :
         onView(withId(R.id.selectLocation)).perform(click())
 
         onView(withId(R.id.map)).perform(click())
-        onView(withText("Add marker"))
+        onView(withId(R.id.alertDialogInput))
         .inRoot(isDialog()) // <---
             .check(matches(isDisplayed()))
-            .perform(ViewActions.typeText("Gregory's house."))
+            .perform(ViewActions.typeText("Mom's Home."))
         onView(withText("Yes"))
             .check(matches(isDisplayed()))
             .perform(click());
@@ -161,6 +161,7 @@ class RemindersActivityTest :
         Espresso.closeSoftKeyboard()
 
         onView(withId(R.id.saveReminder)).perform(click())
+        Espresso.pressBack()
         onView(withText("Mom's Home")).check(matches(isDisplayed()))
         onView(withText("Say Hello")).check(matches(isDisplayed()))
     }

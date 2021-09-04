@@ -50,6 +50,7 @@ import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragmentDirections
 import android.widget.EditText
+import androidx.annotation.IdRes
 import com.udacity.project4.locationreminders.RemindersActivity
 
 
@@ -185,6 +186,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             )
             val input = EditText(requireContext())
             input.inputType = InputType.TYPE_CLASS_TEXT
+            input.id = R.id.alertDialogInput
             AlertDialog.Builder(requireContext())
                 .setTitle("Add marker")
                 .setMessage("Do you want to add marker to reminders?")
