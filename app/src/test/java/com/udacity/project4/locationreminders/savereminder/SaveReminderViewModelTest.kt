@@ -14,6 +14,7 @@ import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
@@ -48,6 +49,40 @@ class SaveReminderViewModelTest {
     @After
     fun cancelTestViewModel() {
         stopKoin()
+    }
+
+    @Test
+    fun check_loading() = mainCoroutineRule.runBlockingTest {
+
+        val reminderDataItem = ReminderDataItem(
+            "title",
+            "description",
+            "location",
+            1.00,
+            2.00
+        )
+        mainCoroutineRule.pauseDispatcher()
+        remindersViewModel.validateAndSaveReminder(reminderDataItem)
+        assertThat(remindersViewModel.showLoading.value, `is`(true))
+        mainCoroutineRule.resumeDispatcher()
+
+        assertThat(remindersViewModel.showLoading.value, `is`(false))
+
+    }
+
+    @Test
+    fun saveRemindernoTitleShouldReturnError() = mainCoroutineRule.runBlockingTest {
+        val reminderDataItem = ReminderDataItem(
+            "title",
+            "description",
+            "location",
+            1.00,
+            2.00
+        )
+        reminderDataItem.title = ""
+
+        remindersViewModel.validateAndSaveReminder(reminderDataItem)
+        assertThat(remindersViewModel.showSnackBarInt.value, notNullValue())
     }
 
     @Test
