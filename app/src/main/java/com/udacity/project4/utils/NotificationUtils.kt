@@ -37,11 +37,14 @@ fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
     }
 
 
-    val intent = Intent(context, ReminderDescriptionActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    }
+    val intent = Intent(context, ReminderDescriptionActivity::class.java)
 
-    val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+    val pendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
+        // Add the intent, which inflates the back stack
+        addNextIntentWithParentStack(intent)
+        // Get the PendingIntent containing the entire back stack
+        getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
 
     val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
         .setSmallIcon(R.mipmap.ic_launcher)
