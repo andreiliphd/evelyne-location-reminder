@@ -37,14 +37,23 @@ fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
     }
 
 
-    val intent = Intent(context, ReminderDescriptionActivity::class.java)
+//    val intent = Intent(context, ReminderDescriptionActivity::class.java)
+//
+//    val pendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
+//        // Add the intent, which inflates the back stack
+//        addNextIntentWithParentStack(intent)
+//        // Get the PendingIntent containing the entire back stack
+//        getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+//    }
 
-    val pendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
-        // Add the intent, which inflates the back stack
-        addNextIntentWithParentStack(intent)
-        // Get the PendingIntent containing the entire back stack
-        getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-    }
+    val intent = ReminderDescriptionActivity.newIntent(context.applicationContext, reminderDataItem)
+
+    //create a pending intent that opens ReminderDescriptionActivity when the user clicks on the notification
+    val stackBuilder = TaskStackBuilder.create(context)
+        .addParentStack(ReminderDescriptionActivity::class.java)
+        .addNextIntent(intent)
+    val pendingIntent = stackBuilder
+        .getPendingIntent(getUniqueId(), PendingIntent.FLAG_UPDATE_CURRENT)
 
     val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
         .setSmallIcon(R.mipmap.ic_launcher)
