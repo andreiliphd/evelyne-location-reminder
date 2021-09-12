@@ -195,12 +195,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 .setPositiveButton("Yes") { _, _ ->
                     //        TODO: call this function after the user confirms on the selected location
                     onLocationSelected(it, input.text.toString())
+                    Toast.makeText(requireContext(), R.string.toastAdd, Toast.LENGTH_SHORT).show()
                 }
                 .setNegativeButton("No") { _, _ ->
                     Log.i("marker", "no")
                 }
                 .show()
-            Toast.makeText(requireContext(), R.string.toastAdd, Toast.LENGTH_SHORT).show()
         }
 
 

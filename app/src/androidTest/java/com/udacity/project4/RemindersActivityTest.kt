@@ -166,21 +166,23 @@ class RemindersActivityTest :
 
         onView(withId(R.id.map)).perform(click())
         onView(withId(R.id.alertDialogInput))
-        .inRoot(isDialog()) // <---
+            .inRoot(isDialog()) // <---
             .check(matches(isDisplayed()))
             .perform(ViewActions.typeText("Saint Petersburg Restaurant Location"))
+
         onView(withText("Yes"))
             .check(matches(isDisplayed()))
             .perform(click())
-//        onView(withText(R.string.toastAdd)).inRoot(withDecorView(not(mActivityRule.getActivity().getWindow().getDecorView()))).check(matches(isDisplayed()))
-
-
         onView(withText(R.string.toastAdd)).inRoot(withDecorView(not(`is`(getActivity(scenario)?.window?.decorView))))
             .check(
                 matches(
                     isDisplayed()
                 )
             )
+
+//        onView(withText(R.string.toastAdd)).inRoot(withDecorView(not(mActivityRule.getActivity().getWindow().getDecorView()))).check(matches(isDisplayed()))
+
+
 
         onView(withId(R.id.reminderTitle)).perform(ViewActions.typeText("Saint Petersburg Restaurant"))
         onView(withId(R.id.reminderDescription)).perform(ViewActions.typeText("Favorite place of Peter the First."))
