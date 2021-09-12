@@ -200,6 +200,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     Log.i("marker", "no")
                 }
                 .show()
+            Toast.makeText(requireContext(), R.string.toastAdd, Toast.LENGTH_SHORT).show()
         }
 
 

@@ -40,6 +40,19 @@ import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
 import org.robolectric.annotation.Config
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
+
+import android.R
+
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers
+import com.google.android.material.internal.ContextUtils.getActivity
+import org.hamcrest.core.Is.`is`
+import org.hamcrest.core.IsNot.not
+
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -152,7 +165,20 @@ class RemindersActivityTest :
             .perform(ViewActions.typeText("Saint Petersburg Restaurant Location"))
         onView(withText("Yes"))
             .check(matches(isDisplayed()))
-            .perform(click());
+            .perform(click())
+        onView(withText(R.string.toastAdd)).inRoot(
+            withDecorView(
+                not(
+                    `is`(
+                        getActivity(appContext).getWindow().getDecorView()
+                    )
+                )
+            )
+        ).check(
+            matches(
+                isDisplayed()
+            )
+        )
 
         onView(withId(R.id.reminderTitle)).perform(ViewActions.typeText("Saint Petersburg Restaurant"))
         onView(withId(R.id.reminderDescription)).perform(ViewActions.typeText("Favorite place of Peter the First."))

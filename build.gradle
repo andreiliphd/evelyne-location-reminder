@@ -11,7 +11,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.2'
+        classpath 'com.android.tools.build:gradle:4.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
         classpath 'com.google.gms:google-services:4.3.3'
@@ -30,7 +30,7 @@ allprojects {
 }
 
 wrapper {
-    gradleVersion = '6.5'
+    gradleVersion = '7.0.2'
     distributionUrl = distributionUrl.replace("bin", "all")
 }
 
@@ -64,7 +64,7 @@ ext {
     truthVersion = '0.44'
     junitVersion = '4.13.2'
     androidXTestCoreVersion = '1.4.0-alpha05'
-    robolectricVersion = '4.3.1'
+    robolectricVersion = '4.6'
     androidXTestExtKotlinRunnerVersion = '1.1.2'
     archTestingVersion = '2.1.0'
     playServicesVersion = '17.0.0'
