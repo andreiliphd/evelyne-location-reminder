@@ -1,5 +1,6 @@
 package com.udacity.project4
 
+import android.app.Activity
 import android.app.Application
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -47,7 +48,6 @@ import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
-import com.google.android.material.internal.ContextUtils.getActivity
 import org.hamcrest.core.Is.`is`
 import org.hamcrest.core.IsNot.not
 
@@ -147,6 +147,14 @@ class RemindersActivityTest :
         onView(withText(reminder.location)).check(matches(isDisplayed()))
     }
 
+    private fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity? {
+        var activity: Activity? = null
+        activityScenario.onActivity {
+            activity = it
+        }
+        return activity
+    }
+
     @Test
     fun addASampleReminder() {
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
@@ -164,19 +172,15 @@ class RemindersActivityTest :
         onView(withText("Yes"))
             .check(matches(isDisplayed()))
             .perform(click())
-//        onView(withText(R.string.toastAdd)).inRoot(
-//            withDecorView(
-//                not(
-//                    `is`(
-//                        getActivity(appContext)?.getWindow().getDecorView()
-//                    )
-//                )
-//            )
-//        ).check(
-//            matches(
-//                isDisplayed()
-//            )
-//        )
+//        onView(withText(R.string.toastAdd)).inRoot(withDecorView(not(mActivityRule.getActivity().getWindow().getDecorView()))).check(matches(isDisplayed()))
+
+
+        onView(withText(R.string.toastAdd)).inRoot(withDecorView(not(`is`(getActivity(scenario)?.window?.decorView))))
+            .check(
+                matches(
+                    isDisplayed()
+                )
+            )
 
         onView(withId(R.id.reminderTitle)).perform(ViewActions.typeText("Saint Petersburg Restaurant"))
         onView(withId(R.id.reminderDescription)).perform(ViewActions.typeText("Favorite place of Peter the First."))
