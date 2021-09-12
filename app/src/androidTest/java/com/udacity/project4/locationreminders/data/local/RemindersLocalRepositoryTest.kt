@@ -1,5 +1,6 @@
 package com.udacity.project4.locationreminders.data.local
 
+import android.util.Log
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -9,6 +10,7 @@ import com.udacity.project4.locationreminders.data.dto.Result
 import com.udacity.project4.locationreminders.data.dto.success
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
@@ -127,4 +129,12 @@ class RemindersLocalRepositoryTest {
         assertThat(remindersResultList.size, `is`(0))
     }
 
+    @Test
+    fun findNonExistentReminder_returnsError() = runBlocking {
+        var error: Boolean = false
+        var result = remindersLocalRepository.getReminder("100")
+        if (result is Result.Error)
+            error = true
+        assertThat(error, `is`(true))
+    }
 }
